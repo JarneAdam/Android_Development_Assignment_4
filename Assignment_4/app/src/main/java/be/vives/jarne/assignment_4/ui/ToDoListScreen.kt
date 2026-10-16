@@ -18,6 +18,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
@@ -25,12 +27,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import be.vives.jarne.assignment_4.models.MockupToDo
 import be.vives.jarne.assignment_4.models.ToDo
 import be.vives.jarne.assignment_4.ui.theme.Assignment_4Theme
 
 @Composable
 fun ToDoListScreen(
+    modifier: Modifier = Modifier,
+    viewModel: ToDoListViewModel = viewModel(),
+    onToDoClick: (ToDo) -> Unit = {},
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    ToDoListContent(
+        modifier = modifier,
+        toDos = uiState.toDos,
+        onToDoClick = onToDoClick,
+    )
+}
+
+@Composable
+fun ToDoListContent(
     modifier: Modifier = Modifier,
     toDos: List<ToDo> = MockupToDo.getToDos(),
     onToDoClick: (ToDo) -> Unit = { _ -> },
@@ -102,6 +120,6 @@ fun ToDoItemCard(
 @Composable
 fun ToDoListScreenPreview() {
     Assignment_4Theme {
-        ToDoListScreen()
+        ToDoListContent()
     }
 }

@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import be.vives.jarne.assignment_4.models.User
@@ -19,6 +19,7 @@ import be.vives.jarne.assignment_4.utility.Utility
 
 /**
  * Reusable dropdown composable for selecting a User from a list.
+ * Note: Dropdown expansion state is a UI-specific state managed here via rememberSaveable.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,7 +30,7 @@ fun UserDropdown(
     modifier: Modifier = Modifier,
     label: String = "Assign To",
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
         expanded = expanded,

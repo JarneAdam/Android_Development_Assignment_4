@@ -14,6 +14,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,12 +25,36 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import be.vives.jarne.assignment_4.R
 import be.vives.jarne.assignment_4.models.ToDo
 import be.vives.jarne.assignment_4.utility.Utility
 
 @Composable
-fun ToDetailScreen(toDo: ToDo, modifier: Modifier = Modifier) {
+fun ToDetailScreen(
+    modifier: Modifier = Modifier,
+    toDo: ToDo? = null,
+    viewModel: ToDetailViewModel = viewModel(),
+) {
+    LaunchedEffect(toDo) {
+        toDo?.let { viewModel.setToDo(it) }
+    }
+
+    val uiState by viewModel.uiState.collectAsState()
+
+    uiState.toDo?.let { currentToDo ->
+        ToDetailContent(
+            toDo = currentToDo,
+            modifier = modifier,
+        )
+    }
+}
+
+@Composable
+fun ToDetailContent(
+    toDo: ToDo,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier
             .fillMaxSize()

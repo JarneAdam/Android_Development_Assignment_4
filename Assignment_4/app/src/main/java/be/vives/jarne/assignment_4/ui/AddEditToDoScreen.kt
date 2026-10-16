@@ -16,65 +16,55 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import be.vives.jarne.assignment_4.models.MockupToDo
 import be.vives.jarne.assignment_4.models.ToDo
 import be.vives.jarne.assignment_4.models.User
 
 /**
- * Stateful screen component managing ToDo editing state.
+ * Stateful screen component managing ToDo editing state using AddEditToDoViewModel.
  */
 @Composable
 fun AddEditToDoScreen(
     modifier: Modifier = Modifier,
     toDo: ToDo? = null,
     users: List<User> = MockupToDo.getUsers(),
+    viewModel: AddEditToDoViewModel = viewModel(),
     onSave: (ToDo) -> Unit = {},
     onCancel: () -> Unit = {},
 ) {
-    var title by remember { mutableStateOf(toDo?.title ?: "") }
-    var description by remember { mutableStateOf(toDo?.description ?: "") }
-    var selectedUser by remember { mutableStateOf(toDo?.assignedToUser) }
-    var analysisDone by remember { mutableStateOf(toDo?.analysisDone ?: false) }
-    var developmentDone by remember { mutableStateOf(toDo?.developmentDone ?: false) }
-    var reviewAndTestingDone by remember { mutableStateOf(toDo?.reviewAndTestingDone ?: false) }
-    var acceptanceDone by remember { mutableStateOf(toDo?.acceptanceDone ?: false) }
+    LaunchedEffect(toDo, users) {
+        viewModel.setInitialToDo(toDo, users)
+    }
+
+    val uiState by viewModel.uiState.collectAsState()
 
     AddEditToDoContent(
-        title = title,
-        onTitleChange = { title = it },
-        description = description,
-        onDescriptionChange = { description = it },
-        selectedUser = selectedUser,
-        onUserSelected = { selectedUser = it },
-        users = users,
-        analysisDone = analysisDone,
-        onAnalysisDoneChange = { analysisDone = it },
-        developmentDone = developmentDone,
-        onDevelopmentDoneChange = { developmentDone = it },
-        reviewAndTestingDone = reviewAndTestingDone,
-        onReviewAndTestingDoneChange = { reviewAndTestingDone = it },
-        acceptanceDone = acceptanceDone,
-        onAcceptanceDoneChange = { acceptanceDone = it },
+        title = uiState.title,
+        onTitleChange = viewModel::onTitleChange,
+        description = uiState.description,
+        onDescriptionChange = viewModel::onDescriptionChange,
+        selectedUser = uiState.selectedUser,
+        onUserSelected = viewModel::onUserSelected,
+        users = uiState.users,
+        analysisDone = uiState.analysisDone,
+        onAnalysisDoneChange = viewModel::onAnalysisDoneChange,
+        developmentDone = uiState.developmentDone,
+        onDevelopmentDoneChange = viewModel::onDevelopmentDoneChange,
+        reviewAndTestingDone = uiState.reviewAndTestingDone,
+        onReviewAndTestingDoneChange = viewModel::onReviewAndTestingDoneChange,
+        acceptanceDone = uiState.acceptanceDone,
+        onAcceptanceDoneChange = viewModel::onAcceptanceDoneChange,
         onSave = {
-            val updatedToDo = (toDo ?: MockupToDo.getToDos().first()).copy(
-                title = title,
-                description = description,
-                assignedToUser = selectedUser,
-                analysisDone = analysisDone,
-                developmentDone = developmentDone,
-                reviewAndTestingDone = reviewAndTestingDone,
-                acceptanceDone = acceptanceDone,
-            )
-            onSave(updatedToDo)
+            onSave(viewModel.getUpdatedToDo())
         },
         onCancel = onCancel,
         modifier = modifier,
